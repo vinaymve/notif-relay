@@ -28,7 +28,7 @@ class RelayListener : NotificationListenerService() {
         val store = Store(this)
         val pairing = store.pairing ?: return
         if (sbn.packageName !in store.enabledApps) return
-        if (sbn.isOngoing || sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY != 0) return
+        if (sbn.isOngoing || isSummary(sbn.notification)) return
 
         val content = extract(this, sbn) ?: return
         val signature = (content.title + "\u0000" + content.text).hashCode()
@@ -45,6 +45,18 @@ class RelayListener : NotificationListenerService() {
     }
 
     companion object {
+        /**
+         * Roll-ups like WhatsApp's "New message from 1 chat" (title "[ ‎ ]"). Not every app sets
+         * FLAG_GROUP_SUMMARY, so also catch grouped InboxStyle notifications and placeholder titles.
+         */
+        private fun isSummary(n: Notification): Boolean {
+            if (n.flags and Notification.FLAG_GROUP_SUMMARY != 0) return true
+            val template = n.extras.getString(Notification.EXTRA_TEMPLATE)
+            if (n.group != null && template == "android.app.Notification\$InboxStyle") return true
+            val title = n.extras.getCharSequence(Notification.EXTRA_TITLE)?.toString().orEmpty()
+            return title.isNotEmpty() && title.none { it.isLetterOrDigit() }
+        }
+
         fun extract(context: Context, sbn: StatusBarNotification): Content? {
             val notification = sbn.notification
             val extras = notification.extras
