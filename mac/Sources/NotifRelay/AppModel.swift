@@ -35,10 +35,15 @@ final class AppModel {
     var paused: Bool {
         didSet { UserDefaults.standard.set(paused, forKey: "paused") }
     }
+    var copyCodes: Bool {
+        didSet { UserDefaults.standard.set(copyCodes, forKey: "copyCodes") }
+    }
 
     /// Messages older than this (e.g. cached while the Mac was asleep) go into
     /// the recent list but don't pop a banner.
     @ObservationIgnored private let bannerMaxAge: TimeInterval = 30 * 60
+    /// One-time codes expire quickly; don't overwrite the clipboard with stale ones after waking up.
+    @ObservationIgnored private let codeMaxAge: TimeInterval = 5 * 60
     @ObservationIgnored private var task: Task<Void, Never>?
     @ObservationIgnored private var seen = Set<String>()
     @ObservationIgnored private let pathMonitor = NWPathMonitor()
@@ -66,6 +71,7 @@ final class AppModel {
             isFirstLaunch = true
         }
         paused = UserDefaults.standard.bool(forKey: "paused")
+        copyCodes = UserDefaults.standard.object(forKey: "copyCodes") as? Bool ?? true
     }
 
     func start() {
@@ -188,8 +194,16 @@ final class AppModel {
         let age = Date().timeIntervalSince1970 - event.time
         log.notice("Decrypted \(payload.pkg, privacy: .public), age=\(Int(age), privacy: .public)s paused=\(self.paused, privacy: .public)")
         refreshNotificationPermission()
-        if !paused && age < bannerMaxAge {
-            Notifier.show(payload)
+        guard !paused else { return }
+        var copiedCode: String?
+        if copyCodes && age < codeMaxAge, let code = OTP.find(in: payload.title + "\n" + payload.text) {
+            NSPasteboard.general.clearContents()
+            let ok = NSPasteboard.general.setString(code, forType: .string)
+            log.notice("Copied one-time code: \(ok, privacy: .public)")
+            copiedCode = code
+        }
+        if age < bannerMaxAge {
+            Notifier.show(payload, copiedCode: copiedCode)
         }
     }
 }

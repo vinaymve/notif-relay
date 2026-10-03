@@ -68,6 +68,7 @@ struct MenuContent: View {
         }
         Divider()
         Toggle("Pause Notifications", isOn: $model.paused)
+        Toggle("Copy One-Time Codes", isOn: $model.copyCodes)
         Toggle("Launch at Login", isOn: $model.launchAtLogin)
         Button("Pair Phone…") {
             NSApp.activate()

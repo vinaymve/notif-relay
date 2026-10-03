@@ -19,9 +19,9 @@ enum Notifier {
         return status == .authorized || status == .provisional
     }
 
-    static func show(_ payload: Payload) {
+    static func show(_ payload: Payload, copiedCode: String? = nil) {
         let content = UNMutableNotificationContent()
-        content.title = payload.app
+        content.title = copiedCode.map { "\(payload.app): code \($0) copied" } ?? payload.app
         if !payload.title.isEmpty { content.subtitle = payload.title }
         content.body = payload.text
         content.sound = .default
