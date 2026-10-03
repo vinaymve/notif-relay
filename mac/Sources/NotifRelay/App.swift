@@ -24,6 +24,7 @@ struct NotifRelayApp: App {
 
     private var menuIcon: String {
         if model.paused { return "bell.slash" }
+        if !model.notificationsAllowed { return "exclamationmark.triangle" }
         if case .offline = model.status { return "bell.badge.slash" }
         return "bell"
     }
@@ -49,6 +50,9 @@ struct MenuContent: View {
 
     var body: some View {
         Text(model.status.label)
+        if !model.notificationsAllowed {
+            Button("⚠️ Notifications are off. Open Settings…") { model.openNotificationSettings() }
+        }
         Divider()
         if model.recent.isEmpty {
             Text("No notifications yet")

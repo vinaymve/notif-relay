@@ -31,6 +31,7 @@ final class AppModel {
     private(set) var status: Status = .connecting
     private(set) var recent: [Received] = []
     let isFirstLaunch: Bool
+    private(set) var notificationsAllowed = true
     var paused: Bool {
         didSet { UserDefaults.standard.set(paused, forKey: "paused") }
     }
@@ -82,7 +83,16 @@ final class AppModel {
         reconnect()
     }
 
+    func refreshNotificationPermission() {
+        Task { notificationsAllowed = await Notifier.isAllowed() }
+    }
+
+    func openNotificationSettings() {
+        NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings.extension?id=dev.notifrelay.mac")!)
+    }
+
     func reconnect() {
+        refreshNotificationPermission()
         task?.cancel()
         task = Task { await runLoop() }
     }
@@ -153,6 +163,7 @@ final class AppModel {
             } catch {
                 if Task.isCancelled { return }
                 status = .offline(error.localizedDescription)
+                log.error("Stream error: \(error.localizedDescription, privacy: .public)")
             }
             try? await Task.sleep(nanoseconds: delay * 1_000_000_000)
             delay = min(delay * 2, 30)
@@ -164,6 +175,7 @@ final class AppModel {
               event.event == "message", let message = event.message
         else { return }
         lastId = event.id
+        log.notice("Received message \(event.id, privacy: .public)")
         guard seen.insert(event.id).inserted,
               let key = pairing.symmetricKey,
               let plain = try? Box.open(message, key: key),
@@ -174,6 +186,8 @@ final class AppModel {
         if recent.count > 20 { recent.removeLast() }
 
         let age = Date().timeIntervalSince1970 - event.time
+        log.notice("Decrypted \(payload.pkg, privacy: .public), age=\(Int(age), privacy: .public)s paused=\(self.paused, privacy: .public)")
+        refreshNotificationPermission()
         if !paused && age < bannerMaxAge {
             Notifier.show(payload)
         }
