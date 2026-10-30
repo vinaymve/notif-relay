@@ -61,6 +61,8 @@ stop after a while, set Notif Relay's battery usage to *Unrestricted* in app set
 ## Layout
 
 ```
+design/              icon sources (SVG): glyph.svg is the master; mac-icon.svg and
+                     menubar.svg render to mac/Resources, Android uses vector drawables
 mac/Sources/NotifRelay/
   App.swift          menu bar UI, pairing window with QR code
   AppModel.swift     ntfy subscription, reconnect on wake / network change

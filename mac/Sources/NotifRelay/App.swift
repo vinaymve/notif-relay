@@ -12,7 +12,11 @@ struct NotifRelayApp: App {
         MenuBarExtra {
             MenuContent(model: model)
         } label: {
-            Image(systemName: menuIcon)
+            if let symbol = statusSymbol {
+                Image(systemName: symbol)
+            } else {
+                Image(nsImage: Self.menuBarIcon)
+            }
         }
 
         Window("Pair Phone", id: "pair") {
@@ -22,12 +26,21 @@ struct NotifRelayApp: App {
         .defaultLaunchBehavior(model.isFirstLaunch ? .presented : .suppressed)
     }
 
-    private var menuIcon: String {
+    /// System symbols for problem states; nil means everything's fine and the app's own icon shows.
+    private var statusSymbol: String? {
         if model.paused { return "bell.slash" }
         if !model.notificationsAllowed { return "exclamationmark.triangle" }
         if case .offline = model.status { return "bell.badge.slash" }
-        return "bell"
+        return nil
     }
+
+    private static let menuBarIcon: NSImage = {
+        // MenuBarIcon.png / @2x in Contents/Resources; template so it follows light/dark menu bars.
+        let image = NSImage(named: "MenuBarIcon") ?? NSImage(systemSymbolName: "bell", accessibilityDescription: nil)!
+        image.isTemplate = true
+        image.size = NSSize(width: 18, height: 18)
+        return image
+    }()
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {

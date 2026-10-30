@@ -8,6 +8,8 @@
 	<string>Notif Relay</string>
 	<key>CFBundleDisplayName</key>
 	<string>Notif Relay</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
 	<key>CFBundleExecutable</key>
 	<string>NotifRelay</string>
 	<key>CFBundlePackageType</key>

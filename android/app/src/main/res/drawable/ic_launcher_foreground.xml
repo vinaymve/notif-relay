@@ -1,17 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Material "notifications" bell, centred in the 108dp adaptive-icon safe zone. -->
+<!-- Bell with a relay arrow. Source: design/glyph.svg (100x100), scaled 0.55 into the 108dp
+     adaptive-icon canvas with its visual centre (54,50) at (54,54). Stays inside the 66dp safe zone. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
     <group
-        android:scaleX="2"
-        android:scaleY="2"
-        android:translateX="30"
-        android:translateY="30">
+        android:scaleX="0.55"
+        android:scaleY="0.55"
+        android:translateX="24.3"
+        android:translateY="26.5">
         <path
             android:fillColor="#FFFFFF"
-            android:pathData="M12,22c1.1,0 2,-0.9 2,-2h-4c0,1.1 0.89,2 2,2zM18,16v-5c0,-3.07 -1.64,-5.64 -4.5,-6.32V4c0,-0.83 -0.67,-1.5 -1.5,-1.5s-1.5,0.67 -1.5,1.5v0.68C7.63,5.36 6,7.92 6,11v5l-2,2v1h16v-1l-2,-2z" />
+            android:pathData="M40,26.5a4.5,4.5 0,1 0,0.01 0z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M40,33c-11.6,0 -20,9 -20,21v11l-6.5,7.5V76h53v-3.5L60,65V54c0,-12 -8.4,-21 -20,-21z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M32.5,80h15a7.5,7.5 0,0 1,-15 0z" />
+        <path
+            android:pathData="M44,14A32,32 0,0 1,84 46"
+            android:strokeColor="#7DE3FF"
+            android:strokeLineCap="round"
+            android:strokeWidth="7.5" />
+        <path
+            android:fillColor="#7DE3FF"
+            android:pathData="M74,44h20l-10,13z"
+            android:strokeColor="#7DE3FF"
+            android:strokeLineJoin="round"
+            android:strokeWidth="3" />
     </group>
 </vector>
