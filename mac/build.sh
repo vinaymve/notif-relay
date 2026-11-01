@@ -3,11 +3,13 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-swift build -c release
+# Universal binary so the same .app runs on Apple Silicon and Intel Macs.
+swift build -c release --arch arm64 --arch x86_64
+BIN="$(swift build -c release --arch arm64 --arch x86_64 --show-bin-path)/NotifRelay"
 APP="build/Notif Relay.app"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-cp .build/release/NotifRelay "$APP/Contents/MacOS/"
+cp "$BIN" "$APP/Contents/MacOS/"
 cp Resources/* "$APP/Contents/Resources/"
 cp Info.plist "$APP/Contents/"
 codesign --force --sign - "$APP"
